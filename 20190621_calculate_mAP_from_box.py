@@ -106,12 +106,14 @@ precision = np.array(precision,dtype=float)
 
 x_target = sorted(list(set(recall)))
 y_mean = []
+weight = []
 for i in range(len(x_target)):
     mask = recall==x_target[i]
+    weight.append(len(precision[mask]))
     y_mean.append(np.mean(precision[mask]))
 y_mean = np.array(y_mean)
 x_target = np.array(x_target)
-
+weight = np.array(weight)
 
 # In[198]:
 
@@ -122,6 +124,8 @@ import matplotlib.pyplot as plt
 mask_finite = np.isfinite(x_target+y_mean)
 poly = np.poly1d(np.polyfit(x_target[mask_finite],y_mean[mask_finite],5))
 mAP = integrate.quad(lambda x: poly(x),0,1)[0]
+## I didn't include weight in our toy model. Need to fix it.
+# mAP = np.nansum(weight*y_mean/(np.nansum(weight)))
 
 plt.plot(x_target,y_mean,"k",label="mAP = %.2f"%(mAP))
 plt.xlabel("Recall")
